@@ -8,7 +8,7 @@ void encrypt(char plaintext[], int shift);
 int main(int argc, char *argv[]){
 
     if (argc != 2){
-        printf("Usage: ./ceasar k\n");
+        printf("Usage: ./ceasar key\n");
         return 1;
     }
 
