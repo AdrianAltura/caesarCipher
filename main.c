@@ -1,89 +1,62 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
+#include <ctype.h>
+#include <stdlib.h>
 
-void encrypt(char *text, int shift);
-void decrypt(char *text, int shift);
+void encrypt(char plaintext[], int shift);
 
-//logic bug at inputs
-//need to fix shift when it exceeds both upper and lower case z
-//using this algo, errors occurs when input text have spaces in them
-//inputing a couple of letters produces an ouput more than the inputed letters bug
+int main(int argc, char *argv[]){
 
-int main(void){ 
-
-  char direction[32];
-  char text[32];
-  int shift;
-  char encode[] = {"encode"};
-  bool run = true;
-
-  while (run){
-
-    printf("Please enter text: ");
-    scanf("%s", text);
-
-    printf("Please enter direction (encode or decode): ");
-    scanf("%s", direction);
-
-    printf("Please enter shift amount: ");
-    scanf("%d", &shift);
-
-    if ((strcmp(direction, encode)) == 0){
-        encrypt(text, shift);
-    }
-    else{
-      decrypt(text, shift);
+    if (argc != 2){
+        printf("Usage: ./ceasar k\n");
+        return 1;
     }
 
-    char shouldRunAgain[32];
-    char no[] = {"no"};
-
-    printf("Type 'yes' should you desire to continue, otherwise 'no': ");
-    scanf("%s", shouldRunAgain);
-
-    if ((strcmp(shouldRunAgain, no)) == 0){
-      printf("Good bye bye\n");
-      run = false;
+    for (int key = 0; key < strlen(argv[1]); key++){
+        if (isalpha(argv[1][key])){
+            printf("Usage: ./ceasar key\n");
+            return 1;
+        }
     }
-  }
+
+    int shift = atoi(argv[1]) % 26;
+    char text[50000];
+
+    printf("Plaintext: ");
+    fgets(text, 50000, stdin);
+
+    encrypt(text, shift);
 }
 
-void encrypt(char *text, int shift){ 
+void encrypt(char plaintext[], int shift){
 
-  int len = strlen(text);
-  char end_text[len];
+    int len = strlen(plaintext);
+    char ciphertext[len];
 
-  for (int i = 0; i < len; i++){
-    if ((text[i] + shift) > 'z'){
-      end_text[i] = ((text[i] + shift) - 26);
+    for (int i = 0; i < len; i++){
+        if (('A' <= plaintext[i] && plaintext[i] <= 'Z') || ('a' <= plaintext[i] && plaintext[i] <= 'z')){
+            if ((plaintext[i] + shift) >= 123){
+                ciphertext[i] = (plaintext[i] - 26) + shift;
+            }
+            else if ((plaintext[i] + shift) <= 96 && (plaintext[i] + shift) >= 91){
+                ciphertext[i] = (plaintext[i] - 26) + shift;
+            }
+            else{
+                ciphertext[i] = (plaintext[i] + shift);
+            }
+        }
+        else{
+            ciphertext[i] = plaintext[i];
+        }
     }
-    else if (('A' <= text[i] && text[i] <= 'Z') || ('a' <= text[i] && text[i] <= 'z')){
-      end_text[i] = text[i] + shift;
-    }
-    else{
-      end_text[i] = text[i];
-    }
-  }
-  
-  printf("The Encrypted text is: %s\n", end_text);
-}
 
-void decrypt(char *text, int shift){ 
+    ciphertext[len] = '\0';
 
-  int len = strlen(text);
-  char end_text[len];
-  for (int i = 0; i < len; i++){
-    if ('a' <= text[i] && text[i] <= 'z'){
-      end_text[i] = text[i] - shift;
-    }
-    else if ('A' <= text[i] && text[i] <= 'Z'){
-      end_text[i] = text[i] - shift;
-    }
-    else{
-      end_text[i] = text[i];
-    }
-  }
+    printf("Ciphertext: ");
 
-  printf("The Decrypted text is: %s\n", end_text);
+    for (int i = 0; i < strlen(ciphertext); i++){
+        if (ciphertext[i] != '\0'){
+            printf("%c", ciphertext[i]);
+        }
+    }
 }
